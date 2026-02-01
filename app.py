@@ -5,6 +5,9 @@ import io
 import os
 import zipfile
 import pytesseract
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 import platform
 import subprocess
 from pdf2image import convert_from_bytes
@@ -551,6 +554,30 @@ def configure_ocr_paths():
                             break
                 if poppler_found: break
 
+def text_to_docx(text):
+    """Convert plain text to a DOCX file buffer."""
+    doc = Document()
+    
+    # Set default style
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Arial'
+    font.size = Pt(11)
+    
+    # Split text into paragraphs and add to document
+    for line in text.split('\n'):
+        if line.strip():
+            p = doc.add_paragraph(line)
+            # Simple check for RTL (Arabic) - very basic heuristic
+            if any("\u0600" <= c <= "\u06FF" for c in line):
+                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        else:
+            doc.add_paragraph()
+            
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    return buffer.getvalue()
+
 def ocr_pdf(pdf_file, lang="eng"):
     """Perform OCR on a PDF file and return the extracted text."""
     # Convert PDF to images
@@ -915,6 +942,12 @@ def main():
                     format_func=lambda x: "English" if x == "eng" else "Arabic" if x == "ara" else "Arabic + English",
                     help="Choose the language used in the document for better accuracy."
                 )
+            with col2:
+                export_format = st.selectbox(
+                    "Export Format",
+                    options=["TXT", "Word (DOCX)"],
+                    index=1 # Default to Word
+                )
             
             if st.button("Extract Text with OCR"):
                 with st.spinner("🔍 Reading document... This may take a moment."):
@@ -923,12 +956,22 @@ def main():
                         st.success("✅ OCR completed successfully!")
                         st.markdown("### Extracted Text Preview:")
                         st.text_area("", extracted_text, height=400, key="ocr_result_area")
-                        st.download_button(
-                            label="📥 Download Extracted Text",
-                            data=extracted_text,
-                            file_name=f"ocr_{uploaded_file.name.rsplit('.', 1)[0]}.txt",
-                            mime="text/plain"
-                        )
+                        
+                        if export_format == "TXT":
+                            st.download_button(
+                                label="📥 Download as TXT",
+                                data=extracted_text,
+                                file_name=f"ocr_{uploaded_file.name.rsplit('.', 1)[0]}.txt",
+                                mime="text/plain"
+                            )
+                        else:
+                            docx_data = text_to_docx(extracted_text)
+                            st.download_button(
+                                label="📥 Download as Word (DOCX)",
+                                data=docx_data,
+                                file_name=f"ocr_{uploaded_file.name.rsplit('.', 1)[0]}.docx",
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            )
                     except Exception as e:
                         st.error(f"❌ OCR failed: {e}")
                         if "ara" in ocr_lang:
