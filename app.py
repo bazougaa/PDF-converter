@@ -551,7 +551,7 @@ def configure_ocr_paths():
                             break
                 if poppler_found: break
 
-def ocr_pdf(pdf_file):
+def ocr_pdf(pdf_file, lang="eng"):
     """Perform OCR on a PDF file and return the extracted text."""
     # Convert PDF to images
     pdf_file.seek(0)
@@ -561,7 +561,7 @@ def ocr_pdf(pdf_file):
     
     full_text = ""
     for i, image in enumerate(images):
-        text = pytesseract.image_to_string(image)
+        text = pytesseract.image_to_string(image, lang=lang)
         full_text += f"--- Page {i+1} ---\n{text}\n\n"
     
     return full_text
@@ -889,10 +889,20 @@ def main():
         
         if uploaded_file:
             st.success(f"Ready to process: {uploaded_file.name}")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                ocr_lang = st.selectbox(
+                    "Select Document Language",
+                    options=["eng", "ara", "ara+eng"],
+                    format_func=lambda x: "English" if x == "eng" else "Arabic" if x == "ara" else "Arabic + English",
+                    help="Choose the language used in the document for better accuracy."
+                )
+            
             if st.button("Extract Text with OCR"):
                 with st.spinner("🔍 Reading document... This may take a moment."):
                     try:
-                        extracted_text = ocr_pdf(uploaded_file)
+                        extracted_text = ocr_pdf(uploaded_file, lang=ocr_lang)
                         st.success("✅ OCR completed successfully!")
                         st.markdown("### Extracted Text Preview:")
                         st.text_area("", extracted_text, height=400, key="ocr_result_area")
@@ -904,12 +914,15 @@ def main():
                         )
                     except Exception as e:
                         st.error(f"❌ OCR failed: {e}")
+                        if "ara" in ocr_lang:
+                            st.warning("⚠️ **Arabic Language Pack Missing?**: If you are trying to use Arabic OCR, you might need to download the `ara.traineddata` file.")
                         st.info("🛠️ **Troubleshooting**: I've attempted to install Tesseract and Poppler via Winget. If you still see this error, please **restart your terminal or computer** to update your system PATH.")
                         st.markdown("""
                         **Manual Installation Steps:**
                         1. Download Tesseract from [here](https://github.com/UB-Mannheim/tesseract/wiki).
-                        2. Download Poppler for Windows from [here](https://github.com/oschwartz10612/poppler-windows/releases).
-                        3. Add both `bin` folders to your system Environment Variables (PATH).
+                        2. **For Arabic Support**: Download `ara.traineddata` from [Tesseract Data](https://github.com/tesseract-ocr/tessdata) and place it in the `tessdata` folder of your Tesseract installation.
+                        3. Download Poppler for Windows from [here](https://github.com/oschwartz10612/poppler-windows/releases).
+                        4. Add both `bin` folders to your system Environment Variables (PATH).
                         """)
 
     elif st.session_state.tool == "Organize":
