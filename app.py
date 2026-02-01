@@ -3,6 +3,7 @@ import fitz  # PyMuPDF
 from pdf2docx import Converter
 import io
 import os
+import zipfile
 from PIL import Image
 from docx import Document
 
@@ -16,17 +17,23 @@ def pdf_to_text(pdf_file):
             text += page.get_text()
     return text
 
-def pdf_to_images(pdf_file):
-    """Convert PDF pages to images using PyMuPDF."""
-    images = []
+def pdf_to_images_zip(pdf_file, base_filename):
+    """Convert PDF pages to images and bundle them into a ZIP file."""
+    zip_buffer = io.BytesIO()
     pdf_file.seek(0)
-    with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
-        for i in range(len(doc)):
-            page = doc.load_page(i)
-            pix = page.get_pixmap()
-            img_data = pix.tobytes("png")
-            images.append((i + 1, img_data))
-    return images
+    
+    with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+        with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
+            for i in range(len(doc)):
+                page = doc.load_page(i)
+                pix = page.get_pixmap()
+                img_data = pix.tobytes("png")
+                
+                # Add image to ZIP
+                image_name = f"{base_filename}_page_{i+1}.png"
+                zip_file.writestr(image_name, img_data)
+                
+    return zip_buffer.getvalue()
 
 def pdf_to_docx(pdf_file):
     """Convert PDF to DOCX using pdf2docx."""
@@ -109,19 +116,18 @@ def main():
 
                 elif conversion_type == "Images (.png)":
                     if st.button(f"Convert {uploaded_file.name} to Images", key=f"btn_img_{uploaded_file.name}"):
-                        with st.spinner("Generating images..."):
-                            images = pdf_to_images(uploaded_file)
-                            st.success(f"Generated {len(images)} images.")
+                        with st.spinner("Generating images and creating ZIP..."):
+                            base_name = uploaded_file.name.rsplit('.', 1)[0]
+                            zip_data = pdf_to_images_zip(uploaded_file, base_name)
+                            st.success(f"Successfully converted {uploaded_file.name} to images!")
                             
-                            for page_num, img_data in images:
-                                st.image(img_data, caption=f"Page {page_num}")
-                                st.download_button(
-                                    label=f"Download Page {page_num}",
-                                    data=img_data,
-                                    file_name=f"{uploaded_file.name.rsplit('.', 1)[0]}_page_{page_num}.png",
-                                    mime="image/png",
-                                    key=f"dl_img_{uploaded_file.name}_{page_num}"
-                                 )
+                            st.download_button(
+                                label="Download Images (ZIP)",
+                                data=zip_data,
+                                file_name=f"{base_name}_images.zip",
+                                mime="application/zip",
+                                key=f"dl_zip_{uploaded_file.name}"
+                            )
     
     st.divider()
     st.caption("Powered by Streamlit, PyMuPDF, and pdf2docx")
