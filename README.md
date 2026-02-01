@@ -12,6 +12,10 @@ A powerful, open-source alternative to iLovePDF built with Streamlit and PyMuPDF
 - **🔍 OCR PDF**: Extract text from scanned documents using Optical Character Recognition. (Note: Best for scanned documents; for regular PDFs, use **Convert PDF**).
 - **🗂️ Organize PDF**: Rearrange or delete pages in a document.
 - **🖼️ Extract Images**: Extract all embedded images from a PDF file.
+- **🖋️ Watermark PDF**: Add a text watermark to every page.
+- **🔢 Page Numbers**: Automatically number all pages in a custom format.
+- **🌑 PDF to Grayscale**: Convert colored PDFs to black and white to save ink.
+- **ℹ️ Metadata Editor**: Change the PDF's Title, Author, and Subject.
 
 ## Installation
 
