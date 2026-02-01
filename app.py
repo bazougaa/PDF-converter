@@ -114,11 +114,28 @@ st.markdown("""
         transform: translateY(-5px) !important;
     }
 
-    /* Ensure text areas have high contrast */
+    /* Ensure text areas and labels have high contrast */
     .stTextArea textarea {
         background-color: #ffffff !important;
         color: #1a1a1a !important;
         border: 1px solid #ddd !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Target labels for all inputs to ensure they are dark */
+    label, .stMarkdown p, .stText p {
+        color: #333333 !important;
+    }
+    
+    /* Ensure warning, info, and success boxes have readable text */
+    div[data-testid="stNotification"] {
+        background-color: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
+        color: #333333 !important;
+    }
+    
+    div[data-testid="stNotification"] p {
+        color: #333333 !important;
     }
 
     /* Top Nav Button Styling */
@@ -541,31 +558,35 @@ def main():
                     st.error("Please enter a password.")
 
     elif st.session_state.tool == "OCR PDF":
-        st.title("🔍 OCR PDF")
-        st.write("Extract text from scanned PDFs using Optical Character Recognition.")
+        st.markdown("<h1 style='color: #e5322d !important;'>🔍 OCR PDF (Optical Character Recognition)</h1>", unsafe_allow_html=True)
+        st.write("Extract text from scanned PDFs or images that don't have selectable text.")
+        
         if st.button("← Back to Home"):
             st.session_state.tool = "Home"
             st.rerun()
             
-        st.warning("⚠️ Note: OCR requires Tesseract-OCR to be installed on your system.")
+        st.info("💡 **Note**: This tool is perfect for scanned documents. For regular PDFs, use the **Convert PDF** tool.")
+        
         uploaded_file = st.file_uploader("Choose a scanned PDF file", type="pdf", key="ocr_upload")
         
         if uploaded_file:
+            st.success(f"Ready to process: {uploaded_file.name}")
             if st.button("Extract Text with OCR"):
-                with st.spinner("Performing OCR... This may take a while for large files."):
+                with st.spinner("🔍 Reading document... This may take a moment."):
                     try:
                         extracted_text = ocr_pdf(uploaded_file)
-                        st.success("OCR completed successfully!")
-                        st.text_area("Extracted Text", extracted_text, height=400)
+                        st.success("✅ OCR completed successfully!")
+                        st.markdown("### Extracted Text Preview:")
+                        st.text_area("", extracted_text, height=400, key="ocr_result_area")
                         st.download_button(
-                            label="Download Extracted Text",
+                            label="📥 Download Extracted Text",
                             data=extracted_text,
                             file_name=f"ocr_{uploaded_file.name.rsplit('.', 1)[0]}.txt",
                             mime="text/plain"
                         )
                     except Exception as e:
-                        st.error(f"OCR failed: {e}")
-                        st.info("Ensure Tesseract-OCR is installed and added to your PATH.")
+                        st.error(f"❌ OCR failed: {e}")
+                        st.info("🛠️ **Troubleshooting**: Ensure Tesseract-OCR is installed on your system.")
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")
