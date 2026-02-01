@@ -527,12 +527,30 @@ def configure_ocr_paths():
             if os.path.exists(path):
                 pytesseract.pytesseract.tesseract_cmd = path
                 break
+        
+        # Search for Poppler in WinGet packages if not in PATH
+        poppler_found = False
+        winget_packages = os.path.join(os.environ.get("USERPROFILE", ""), "AppData", "Local", "Microsoft", "WinGet", "Packages")
+        if os.path.exists(winget_packages):
+            for folder in os.listdir(winget_packages):
+                if "Poppler" in folder:
+                    # Look for the bin folder inside
+                    potential_path = os.path.join(winget_packages, folder)
+                    # WinGet Poppler structure: Library\bin
+                    for root, dirs, files in os.walk(potential_path):
+                        if root.endswith("bin") and "pdftoppm.exe" in files:
+                            st.session_state.poppler_path = root
+                            poppler_found = True
+                            break
+                if poppler_found: break
 
 def ocr_pdf(pdf_file):
     """Perform OCR on a PDF file and return the extracted text."""
     # Convert PDF to images
     pdf_file.seek(0)
-    images = convert_from_bytes(pdf_file.read())
+    
+    poppler_path = st.session_state.get("poppler_path", None)
+    images = convert_from_bytes(pdf_file.read(), poppler_path=poppler_path)
     
     full_text = ""
     for i, image in enumerate(images):
