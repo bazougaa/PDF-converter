@@ -145,26 +145,89 @@ st.markdown("""
         opacity: 1 !important;
     }
 
-    /* Top Nav Button Styling */
-    .stButton>button[key^="menu_"], .stButton>button[key="logo_home"] {
-        background-color: transparent !important;
+    /* Real Website Navbar Styling */
+    .nav-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        padding: 0 5%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        z-index: 1000;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .nav-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #e5322d;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 40px;
+    }
+
+    /* Hero Section */
+    .hero-title {
+        font-size: 3rem !important;
+        font-weight: 900 !important;
         color: #333 !important;
+        margin-bottom: 0.5rem !important;
+        text-align: center !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem !important;
+        color: #666 !important;
+        text-align: center !important;
+        margin-bottom: 3rem !important;
+    }
+
+    /* Target ONLY the top navigation buttons */
+    div[data-testid="column"] .stButton>button[key^="menu_"] {
+        background-color: transparent !important;
+        color: #333333 !important;
         border: none !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
         border-radius: 0 !important;
-        border-bottom: 2px solid transparent !important;
+        padding: 0.5rem 0.8rem !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        height: 70px !important;
+        line-height: 70px !important;
+        transition: all 0.2s ease !important;
+        border-bottom: 3px solid transparent !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .stButton>button[key^="menu_"]:hover, .stButton>button[key="logo_home"]:hover {
+    div[data-testid="column"] .stButton>button[key^="menu_"]:hover {
         color: #e5322d !important;
-        border-bottom: 2px solid #e5322d !important;
         background-color: #fff5f5 !important;
+        border-bottom: 3px solid #e5322d !important;
     }
+
+    /* Highlight active tool in menu */
+    /* Note: We'll handle this by adding a special style if the button key matches session_state */
     
+    /* Offset main content for fixed header */
+    .main-content-offset {
+        margin-top: 100px;
+    }
+
+    /* Top Nav Button Styling - Legacy Overrides */
     .stButton>button[key="logo_home"] {
-        font-size: 1.4rem !important;
+        background-color: transparent !important;
         color: #e5322d !important;
+        border: none !important;
+        font-weight: 800 !important;
+        font-size: 1.6rem !important;
+        padding: 0 !important;
+        text-align: left !important;
     }
     
     /* Header Styling */
@@ -499,63 +562,61 @@ def main():
     if 'tool' not in st.session_state:
         st.session_state.tool = "Home"
 
-    # Top Navigation Bar
-    col_logo, col_menu = st.columns([1.5, 5])
-    with col_logo:
-        if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
-            st.session_state.tool = "Home"
-            st.rerun()
-            
-    with col_menu:
-        # Create a horizontal menu using columns
-        m_cols = st.columns(14)
-        menu_options = [
-            "Home", "Merge", "Split", "Compress", "Convert", 
-            "Rotate", "Protect", "OCR", "Organize", 
-            "Images", "Watermark", "Numbers", "Gray", "Meta"
-        ]
-        
-        # Mapping menu display names to tool IDs
-        tool_mapping = {
-            "Home": "Home", "Merge": "Merge PDF", "Split": "Split PDF", 
-            "Compress": "Compress PDF", "Convert": "Convert PDF", 
-            "Rotate": "Rotate PDF", "Protect": "Protect PDF", 
-            "OCR": "OCR PDF", "Organize": "Organize", 
-            "Images": "Extract Img", "Watermark": "Watermark", 
-            "Numbers": "Page Numbers", "Gray": "Grayscale", 
-            "Meta": "Metadata"
-        }
-
-        for idx, option in enumerate(menu_options):
-            tool_id = tool_mapping[option]
-            if m_cols[idx].button(option, key=f"menu_{tool_id}", use_container_width=True):
-                st.session_state.tool = tool_id
+    # Navigation Bar
+    st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
+    header = st.container()
+    with header:
+        col_logo, col_nav = st.columns([1.5, 8.5])
+        with col_logo:
+            if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
+                st.session_state.tool = "Home"
                 st.rerun()
-
-    st.divider()
+        
+        with col_nav:
+            # We use shorter names for the navbar to save space
+            nav_items = [
+                ("Merge", "Merge PDF"),
+                ("Split", "Split PDF"),
+                ("Compress", "Compress PDF"),
+                ("Convert", "Convert PDF"),
+                ("Rotate", "Rotate PDF"),
+                ("Organize", "Organize"),
+                ("OCR", "OCR PDF"),
+                ("Protect", "Protect PDF"),
+                ("Watermark", "Watermark"),
+                ("Images", "Extract Img"),
+                ("Meta", "Metadata")
+            ]
+            
+            # Use columns for horizontal layout
+            nav_cols = st.columns(len(nav_items))
+            for i, (label, tool_id) in enumerate(nav_items):
+                if nav_cols[i].button(label, key=f"menu_{tool_id}", use_container_width=True):
+                    st.session_state.tool = tool_id
+                    st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='main-content-offset'></div>", unsafe_allow_html=True)
 
     # Main Content Area
     if st.session_state.tool == "Home":
-        st.markdown("<h1 style='text-align: center;'>Every tool you need to work with PDFs in one place</h1>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center; color: #666;'>All are 100% FREE and easy to use!</h3>", unsafe_allow_html=True)
-        
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<h1 class='hero-title'>Every tool you need to work with PDFs in one place</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='hero-subtitle'>All the PDF tools you need to be more productive. 100% FREE and easy to use!</p>", unsafe_allow_html=True)
         
         # Grid of Tool Cards
         tools = [
             {"id": "Merge PDF", "icon": "🔗", "title": "Merge PDF", "desc": "Combine PDFs in the order you want."},
             {"id": "Split PDF", "icon": "✂️", "title": "Split PDF", "desc": "Separate one page or a whole set."},
-            {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Reduce file size while optimizing quality."},
+            {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Optimize your PDF file size."},
             {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert to Word, Text or Images."},
-            {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need."},
+            {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate pages as you need."},
             {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."},
-            {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Best for scanned PDFs. For regular ones, use Convert."},
-            {"id": "Organize", "icon": "🗂️", "title": "Organize PDF", "desc": "Rearrange, delete or add pages to your document."},
-            {"id": "Extract Img", "icon": "🖼️", "title": "Extract Images", "desc": "Extract all embedded images from your PDF file."},
-            {"id": "Watermark", "icon": "🖋️", "title": "Watermark", "desc": "Add a text watermark to all pages of your PDF."},
-            {"id": "Page Numbers", "icon": "🔢", "title": "Page Numbers", "desc": "Add page numbers to the bottom of your PDF."},
-            {"id": "Grayscale", "icon": "🌑", "title": "Grayscale", "desc": "Convert colored PDFs to black and white."},
-            {"id": "Metadata", "icon": "ℹ️", "title": "Metadata", "desc": "Edit PDF Title, Author, and Subject."},
+            {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Extract text from scanned documents."},
+            {"id": "Organize", "icon": "🗂️", "title": "Organize PDF", "desc": "Rearrange or delete pages."},
+            {"id": "Extract Img", "icon": "🖼️", "title": "Extract Images", "desc": "Get all images from your PDF."},
+            {"id": "Watermark", "icon": "🖋️", "title": "Watermark", "desc": "Add a text watermark to all pages."},
+            {"id": "Page Numbers", "icon": "🔢", "title": "Page Numbers", "desc": "Add numbering to your document."},
+            {"id": "Grayscale", "icon": "🌑", "title": "Grayscale", "desc": "Convert to black and white."},
+            {"id": "Metadata", "icon": "ℹ️", "title": "Metadata", "desc": "Edit PDF Title and Author."},
         ]
         
         # Display cards in a 3-column grid
@@ -876,8 +937,17 @@ def main():
                     st.success("Metadata updated!")
                     st.download_button("Download Updated PDF", result, f"updated_{uploaded_file.name}", "application/pdf")
 
-    st.markdown("<br><hr>", unsafe_allow_html=True)
-    st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")
+    st.markdown("""
+        <div style='text-align: center; padding: 3rem 0; color: #666; border-top: 1px solid #eee; margin-top: 5rem;'>
+            <div style='font-size: 1.2rem; font-weight: 700; color: #e5322d; margin-bottom: 1rem;'>📄 PDF POWER</div>
+            <p>© 2026 PDF Power-Tool. All rights reserved. Made for professional PDF management.</p>
+            <div style='display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;'>
+                <a href='#' style='color: #666; text-decoration: none;'>Terms</a>
+                <a href='#' style='color: #666; text-decoration: none;'>Privacy</a>
+                <a href='#' style='color: #666; text-decoration: none;'>Support</a>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
