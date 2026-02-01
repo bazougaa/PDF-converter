@@ -166,22 +166,37 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* iLovePDF Red Accents */
+    /* iLovePDF Red Accents - Action Buttons */
     .stButton>button {
         background-color: #e5322d !important;
-        color: #ffffff !important; /* Ensure white text on red background */
+        color: #ffffff !important;
         border-radius: 8px !important;
         border: none !important;
-        padding: 0.5rem 1rem !important;
-        font-weight: 600 !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
         transition: all 0.3s ease !important;
         width: 100%;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Better contrast for white text */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        overflow: visible !important;
+    }
+
+    /* Specifically target the label/text inside the button */
+    .stButton>button p, .stButton>button span, .stButton>button div {
+        color: #ffffff !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        font-weight: 700 !important;
     }
     
     .stButton>button:hover {
         background-color: #c12723 !important;
-        box-shadow: 0 4px 12px rgba(229, 50, 45, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(229, 50, 45, 0.4) !important;
         transform: translateY(-1px) !important;
     }
     
