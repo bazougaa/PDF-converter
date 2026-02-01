@@ -5,6 +5,8 @@ import io
 import os
 import zipfile
 import pytesseract
+import platform
+import subprocess
 from pdf2image import convert_from_bytes
 from PIL import Image
 from docx import Document
@@ -371,6 +373,21 @@ def compress_pdf(pdf_file):
             clean=True
         )
 
+def configure_ocr_paths():
+    """Configure paths for Tesseract and Poppler on Windows if they are not in PATH."""
+    if platform.system() == "Windows":
+        # Common Tesseract paths
+        tesseract_paths = [
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Users\Admin\AppData\Local\Tesseract-OCR\tesseract.exe",
+            os.path.join(os.environ.get("LOCALAPPDATA", ""), "Tesseract-OCR", "tesseract.exe")
+        ]
+        
+        for path in tesseract_paths:
+            if os.path.exists(path):
+                pytesseract.pytesseract.tesseract_cmd = path
+                break
+
 def ocr_pdf(pdf_file):
     """Perform OCR on a PDF file and return the extracted text."""
     # Convert PDF to images
@@ -385,6 +402,7 @@ def ocr_pdf(pdf_file):
     return full_text
 
 def main():
+    configure_ocr_paths()
     if 'tool' not in st.session_state:
         st.session_state.tool = "Home"
 
@@ -606,7 +624,13 @@ def main():
                         )
                     except Exception as e:
                         st.error(f"❌ OCR failed: {e}")
-                        st.info("🛠️ **Troubleshooting**: Ensure Tesseract-OCR is installed on your system.")
+                        st.info("🛠️ **Troubleshooting**: I've attempted to install Tesseract and Poppler via Winget. If you still see this error, please **restart your terminal or computer** to update your system PATH.")
+                        st.markdown("""
+                        **Manual Installation Steps:**
+                        1. Download Tesseract from [here](https://github.com/UB-Mannheim/tesseract/wiki).
+                        2. Download Poppler for Windows from [here](https://github.com/oschwartz10612/poppler-windows/releases).
+                        3. Add both `bin` folders to your system Environment Variables (PATH).
+                        """)
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")
