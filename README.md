@@ -19,7 +19,13 @@ A powerful, open-source alternative to iLovePDF built with Streamlit and PyMuPDF
    cd PDF-converter
    ```
 
-2. Install dependencies:
+2. **System Requirements (OCR Only)**:
+   The OCR tool requires **Tesseract-OCR** to be installed on your system:
+   - **Windows**: Download the installer from [UB-Mannheim Tesseract](https://github.com/UB-Mannheim/tesseract/wiki). Add the installation path (usually `C:\Program Files\Tesseract-OCR`) to your system **PATH**.
+   - **Linux**: `sudo apt install tesseract-ocr`
+   - **macOS**: `brew install tesseract`
+
+3. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
