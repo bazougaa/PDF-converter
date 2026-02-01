@@ -17,10 +17,50 @@ st.markdown("""
         background-color: #f8f9fa;
     }
     
-    /* Sidebar Styling */
+    /* Sidebar Styling - Hidden */
     section[data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e0e0e0;
+        display: none;
+    }
+    
+    /* Top Menu Styling */
+    .top-menu {
+        display: flex;
+        justify-content: center;
+        background-color: white;
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 2rem;
+        gap: 2rem;
+    }
+    
+    .menu-item {
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+    }
+    
+    .menu-item:hover {
+        color: #e5322d;
+        background-color: #fff5f5;
+    }
+
+    /* Tool Card Fixes */
+    .stButton>button[key^="btn_home_"] {
+        height: 200px !important;
+        background-color: white !important;
+        color: #333 !important;
+        border: 1px solid #eee !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+        display: block !important;
+    }
+    
+    .stButton>button[key^="btn_home_"]:hover {
+        border-color: #e5322d !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+        transform: translateY(-5px) !important;
     }
     
     /* Header Styling */
@@ -217,64 +257,59 @@ def main():
     if 'tool' not in st.session_state:
         st.session_state.tool = "Home"
 
-    # Sidebar Navigation
-    with st.sidebar:
-        st.image("https://www.ilovepdf.com/img/ilovepdf.svg", width=150)
-        st.divider()
-        st.header("🛠️ Tools Menu")
-        
-        # Sync sidebar with session state
-        tool_options = ["Home", "Convert PDF", "Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF", "Protect PDF"]
-        tool_index = tool_options.index(st.session_state.tool) if st.session_state.tool in tool_options else 0
-        
-        choice = st.selectbox(
-            "Select a Tool",
-            tool_options,
-            index=tool_index,
-            key="sidebar_tool"
-        )
-        
-        # Update session state when sidebar changes
-        if choice != st.session_state.tool:
-            st.session_state.tool = choice
+    # Top Navigation Bar
+    col_logo, col_menu = st.columns([1, 4])
+    with col_logo:
+        if st.button("📄 PDF Power", key="logo_home"):
+            st.session_state.tool = "Home"
             st.rerun()
+            
+    with col_menu:
+        # Create a horizontal menu using columns
+        m_cols = st.columns(7)
+        menu_options = ["Home", "Merge PDF", "Split PDF", "Compress PDF", "Convert PDF", "Rotate PDF", "Protect PDF"]
+        for idx, option in enumerate(menu_options):
+            if m_cols[idx].button(option, key=f"menu_{option}", use_container_width=True):
+                st.session_state.tool = option
+                st.rerun()
 
-        st.divider()
-        st.header("💡 Pro Tip")
-        st.info("You can drag and drop files directly into the upload area!")
+    st.divider()
 
     # Main Content Area
     if st.session_state.tool == "Home":
-        st.title("Every tool you need to work with PDFs in one place")
-        st.subheader("Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use!")
+        st.markdown("<h1 style='text-align: center;'>Every tool you need to work with PDFs in one place</h1>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #666;'>All are 100% FREE and easy to use!</h3>", unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
         
         # Grid of Tool Cards
-        col1, col2, col3 = st.columns(3)
-        
         tools = [
-            {"id": "Merge PDF", "icon": "🔗", "title": "Merge PDF", "desc": "Combine PDFs in the order you want with the easiest PDF merger available."},
-            {"id": "Split PDF", "icon": "✂️", "title": "Split PDF", "desc": "Separate one page or a whole set for easy conversion into independent PDF files."},
-            {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Reduce file size while optimizing for maximal PDF quality."},
-            {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert PDF to Word, Text or Images with high accuracy."},
-            {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!"},
-            {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password to prevent unauthorized access."}
+            {"id": "Merge PDF", "icon": "🔗", "title": "Merge PDF", "desc": "Combine PDFs in the order you want."},
+            {"id": "Split PDF", "icon": "✂️", "title": "Split PDF", "desc": "Separate one page or a whole set."},
+            {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Reduce file size while optimizing quality."},
+            {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert to Word, Text or Images."},
+            {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need."},
+            {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."}
         ]
         
-        for i, tool in enumerate(tools):
-            target_col = [col1, col2, col3][i % 3]
-            with target_col:
-                st.markdown(f"""
-                    <div class="tool-card">
-                        <div class="tool-icon">{tool['icon']}</div>
-                        <div class="tool-title">{tool['title']}</div>
-                        <div class="tool-desc">{tool['desc']}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-                if st.button(f"Open {tool['title']}", key=f"btn_home_{tool['id']}"):
-                    st.session_state.tool = tool['id']
-                    st.rerun()
+        # Display cards in a 3-column grid
+        for row in range(0, len(tools), 3):
+            cols = st.columns(3)
+            for i in range(3):
+                if row + i < len(tools):
+                    tool = tools[row + i]
+                    with cols[i]:
+                        # Wrap the button content in HTML for styling, but the button itself is the trigger
+                        st.markdown(f"""
+                            <div style="text-align: center; pointer-events: none; margin-bottom: -150px; position: relative; z-index: 1;">
+                                <div style="font-size: 3rem;">{tool['icon']}</div>
+                                <div style="font-weight: 700; font-size: 1.2rem; margin: 10px 0;">{tool['title']}</div>
+                                <div style="font-size: 0.9rem; color: #666;">{tool['desc']}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("", key=f"btn_home_{tool['id']}", use_container_width=True):
+                            st.session_state.tool = tool['id']
+                            st.rerun()
 
     elif st.session_state.tool == "Convert PDF":
         st.title("🔄 Convert PDF")
