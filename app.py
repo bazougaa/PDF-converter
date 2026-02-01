@@ -7,7 +7,104 @@ import zipfile
 from PIL import Image
 from docx import Document
 
-st.set_page_config(page_title="PDF Multi-Converter", page_icon="📄", layout="centered")
+st.set_page_config(page_title="PDF Power-Tool", page_icon="📄", layout="wide")
+
+# Custom CSS to match iLovePDF branding
+st.markdown("""
+    <style>
+    /* Main Background and Text */
+    .stApp {
+        background-color: #f8f9fa;
+    }
+    
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+        border-right: 1px solid #e0e0e0;
+    }
+    
+    /* Header Styling */
+    h1, h2, h3 {
+        color: #333333 !important;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* iLovePDF Red Accents */
+    .stButton>button {
+        background-color: #e5322d !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 0.5rem 1rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        width: 100%;
+    }
+    
+    .stButton>button:hover {
+        background-color: #c12723 !important;
+        box-shadow: 0 4px 12px rgba(229, 50, 45, 0.3) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Tool Cards */
+    .tool-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .tool-card:hover {
+        border-color: #e5322d;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        transform: translateY(-5px);
+    }
+    
+    .tool-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tool-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .tool-desc {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    /* File Uploader Styling */
+    section[data-testid="stFileUploadDropzone"] {
+        border: 2px dashed #e5322d !important;
+        background-color: #fff5f5 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Selectbox Styling */
+    div[data-baseweb="select"] {
+        border-radius: 8px !important;
+    }
+    
+    /* Divider */
+    hr {
+        margin: 2rem 0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 def pdf_to_text(pdf_file):
     """Extract text from PDF using PyMuPDF."""
@@ -117,60 +214,121 @@ def compress_pdf(pdf_file):
         )
 
 def main():
-    st.title("📄 PDF Power-Tool")
-    
+    if 'tool' not in st.session_state:
+        st.session_state.tool = "Home"
+
+    # Sidebar Navigation
     with st.sidebar:
+        st.image("https://www.ilovepdf.com/img/ilovepdf.svg", width=150)
+        st.divider()
         st.header("🛠️ Tools Menu")
-        choice = st.radio(
+        
+        # Sync sidebar with session state
+        tool_options = ["Home", "Convert PDF", "Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF", "Protect PDF"]
+        tool_index = tool_options.index(st.session_state.tool) if st.session_state.tool in tool_options else 0
+        
+        choice = st.selectbox(
             "Select a Tool",
-            ["Convert PDF", "Merge PDF", "Split PDF", "Compress PDF", "Rotate PDF", "Protect PDF"]
+            tool_options,
+            index=tool_index,
+            key="sidebar_tool"
         )
         
-        st.divider()
-        st.header("💡 How to use:")
-        st.markdown(f"1. **Upload** your PDF(s).\n2. **Configure** {choice.lower()} options.\n3. **Download** result.")
-        st.info("Powered by PyMuPDF, pdf2docx & Streamlit")
+        # Update session state when sidebar changes
+        if choice != st.session_state.tool:
+            st.session_state.tool = choice
+            st.rerun()
 
-    if choice == "Convert PDF":
-        st.header("🔄 Convert PDF")
+        st.divider()
+        st.header("💡 Pro Tip")
+        st.info("You can drag and drop files directly into the upload area!")
+
+    # Main Content Area
+    if st.session_state.tool == "Home":
+        st.title("Every tool you need to work with PDFs in one place")
+        st.subheader("Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use!")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Grid of Tool Cards
+        col1, col2, col3 = st.columns(3)
+        
+        tools = [
+            {"id": "Merge PDF", "icon": "🔗", "title": "Merge PDF", "desc": "Combine PDFs in the order you want with the easiest PDF merger available."},
+            {"id": "Split PDF", "icon": "✂️", "title": "Split PDF", "desc": "Separate one page or a whole set for easy conversion into independent PDF files."},
+            {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Reduce file size while optimizing for maximal PDF quality."},
+            {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert PDF to Word, Text or Images with high accuracy."},
+            {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!"},
+            {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password to prevent unauthorized access."}
+        ]
+        
+        for i, tool in enumerate(tools):
+            target_col = [col1, col2, col3][i % 3]
+            with target_col:
+                st.markdown(f"""
+                    <div class="tool-card">
+                        <div class="tool-icon">{tool['icon']}</div>
+                        <div class="tool-title">{tool['title']}</div>
+                        <div class="tool-desc">{tool['desc']}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                if st.button(f"Open {tool['title']}", key=f"btn_home_{tool['id']}"):
+                    st.session_state.tool = tool['id']
+                    st.rerun()
+
+    elif st.session_state.tool == "Convert PDF":
+        st.title("🔄 Convert PDF")
         st.write("Convert PDF to Text, Word, or Images.")
+        
+        # Navigation back to home
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_files = st.file_uploader("Choose PDF files", type="pdf", accept_multiple_files=True, key="conv_upload")
 
         if uploaded_files:
             for uploaded_file in uploaded_files:
-                with st.expander(f"📄 {uploaded_file.name}"):
-                    conversion_type = st.selectbox(
-                        "Output Format",
-                        ["Select an option", "Text (.txt)", "Word (.docx)", "Images (.png)"],
-                        key=f"select_{uploaded_file.name}"
-                    )
+                with st.expander(f"📄 {uploaded_file.name}", expanded=True):
+                    col_a, col_b = st.columns([2, 1])
+                    with col_a:
+                        conversion_type = st.selectbox(
+                            "Select output format",
+                            ["Select an option", "Text (.txt)", "Word (.docx)", "Images (.png)"],
+                            key=f"select_{uploaded_file.name}"
+                        )
+                    with col_b:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if conversion_type == "Text (.txt)":
+                            if st.button(f"Extract Text", key=f"btn_txt_{uploaded_file.name}"):
+                                with st.spinner("Extracting..."):
+                                    text = pdf_to_text(uploaded_file)
+                                    st.download_button("Download TXT", text, f"{uploaded_file.name.rsplit('.', 1)[0]}.txt", "text/plain")
 
-                    if conversion_type == "Text (.txt)":
-                        if st.button(f"Extract Text", key=f"btn_txt_{uploaded_file.name}"):
-                            with st.spinner("Extracting..."):
-                                text = pdf_to_text(uploaded_file)
-                                st.text_area("Preview", text, height=200, key=f"text_{uploaded_file.name}")
-                                st.download_button("Download TXT", text, f"{uploaded_file.name.rsplit('.', 1)[0]}.txt", "text/plain")
+                        elif conversion_type == "Word (.docx)":
+                            if st.button(f"Convert to Word", key=f"btn_docx_{uploaded_file.name}"):
+                                with st.spinner("Converting..."):
+                                    docx_data = pdf_to_docx(uploaded_file)
+                                    st.download_button("Download DOCX", docx_data, f"{uploaded_file.name.rsplit('.', 1)[0]}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
-                    elif conversion_type == "Word (.docx)":
-                        if st.button(f"Convert to Word", key=f"btn_docx_{uploaded_file.name}"):
-                            with st.spinner("Converting..."):
-                                docx_data = pdf_to_docx(uploaded_file)
-                                st.download_button("Download DOCX", docx_data, f"{uploaded_file.name.rsplit('.', 1)[0]}.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                        elif conversion_type == "Images (.png)":
+                            if st.button(f"Convert to Images", key=f"btn_img_{uploaded_file.name}"):
+                                with st.spinner("Creating ZIP..."):
+                                    base_name = uploaded_file.name.rsplit('.', 1)[0]
+                                    zip_data = pdf_to_images_zip(uploaded_file, base_name)
+                                    st.download_button("Download ZIP", zip_data, f"{base_name}_images.zip", "application/zip")
 
-                    elif conversion_type == "Images (.png)":
-                        if st.button(f"Convert to Images", key=f"btn_img_{uploaded_file.name}"):
-                            with st.spinner("Creating ZIP..."):
-                                base_name = uploaded_file.name.rsplit('.', 1)[0]
-                                zip_data = pdf_to_images_zip(uploaded_file, base_name)
-                                st.download_button("Download ZIP", zip_data, f"{base_name}_images.zip", "application/zip")
-
-    elif choice == "Merge PDF":
-        st.header("🔗 Merge PDF")
+    elif st.session_state.tool == "Merge PDF":
+        st.title("🔗 Merge PDF")
         st.write("Combine multiple PDF files into a single document.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_files = st.file_uploader("Upload PDF files to merge", type="pdf", accept_multiple_files=True, key="merge_upload")
         
         if uploaded_files and len(uploaded_files) > 1:
+            st.info(f"Selected {len(uploaded_files)} files for merging.")
             if st.button("Merge All PDFs"):
                 with st.spinner("Merging..."):
                     merged_data = merge_pdfs(uploaded_files)
@@ -179,9 +337,13 @@ def main():
         elif uploaded_files:
             st.warning("Please upload at least 2 files to merge.")
 
-    elif choice == "Split PDF":
-        st.header("✂️ Split PDF")
+    elif st.session_state.tool == "Split PDF":
+        st.title("✂️ Split PDF")
         st.write("Split a PDF by page ranges (e.g., '1-3, 5, 8-10').")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="split_upload")
         
         if uploaded_file:
@@ -192,9 +354,13 @@ def main():
                     zip_data = split_pdf(uploaded_file, ranges)
                     st.download_button("Download Split Parts (ZIP)", zip_data, "split_pdfs.zip", "application/zip")
 
-    elif choice == "Compress PDF":
-        st.header("📉 Compress PDF")
-        st.write("Reduce the file size of your PDF.")
+    elif st.session_state.tool == "Compress PDF":
+        st.title("📉 Compress PDF")
+        st.write("Reduce the file size of your PDF while maintaining quality.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="comp_upload")
         
         if uploaded_file:
@@ -203,9 +369,13 @@ def main():
                     compressed_data = compress_pdf(uploaded_file)
                     st.download_button("Download Compressed PDF", compressed_data, f"compressed_{uploaded_file.name}", "application/pdf")
 
-    elif choice == "Rotate PDF":
-        st.header("🔄 Rotate PDF")
-        st.write("Rotate all pages in your PDF.")
+    elif st.session_state.tool == "Rotate PDF":
+        st.title("� Rotate PDF")
+        st.write("Rotate all pages in your PDF document.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="rot_upload")
         
         if uploaded_file:
@@ -215,9 +385,13 @@ def main():
                     rotated_data = rotate_pdf(uploaded_file, rotation)
                     st.download_button("Download Rotated PDF", rotated_data, f"rotated_{uploaded_file.name}", "application/pdf")
 
-    elif choice == "Protect PDF":
-        st.header("🔒 Protect PDF")
-        st.write("Add a password to your PDF document.")
+    elif st.session_state.tool == "Protect PDF":
+        st.title("🔒 Protect PDF")
+        st.write("Secure your PDF with a password.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
         uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="prot_upload")
         
         if uploaded_file:
@@ -230,8 +404,8 @@ def main():
                 else:
                     st.error("Please enter a password.")
 
-    st.divider()
-    st.caption("Custom PDF Toolset - Open Source Alternative to iLovePDF")
+    st.markdown("<br><hr>", unsafe_allow_html=True)
+    st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")
 
 if __name__ == "__main__":
     main()
