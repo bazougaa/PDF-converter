@@ -10,6 +10,8 @@ A powerful, open-source alternative to iLovePDF built with Streamlit and PyMuPDF
 - **🔃 Rotate PDF**: Rotate all pages in a document.
 - **🔒 Protect PDF**: Add AES-256 password protection to your files.
 - **🔍 OCR PDF**: Extract text from scanned documents using Optical Character Recognition. (Note: Best for scanned documents; for regular PDFs, use **Convert PDF**).
+- **🗂️ Organize PDF**: Rearrange or delete pages in a document.
+- **🖼️ Extract Images**: Extract all embedded images from a PDF file.
 
 ## Installation
 

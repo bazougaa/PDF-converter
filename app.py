@@ -401,6 +401,36 @@ def ocr_pdf(pdf_file):
     
     return full_text
 
+def organize_pdf(pdf_file, page_order):
+    """Rearrange or delete pages in a PDF."""
+    # page_order: list of 0-based page indices, e.g., [0, 2, 1]
+    pdf_file.seek(0)
+    with fitz.open(stream=pdf_file.read(), filetype="pdf") as src:
+        dest = fitz.open()
+        dest.insert_pdf(src, select=page_order)
+        return dest.tobytes()
+
+def extract_images_from_pdf(pdf_file):
+    """Extract all embedded images from a PDF and bundle into a ZIP."""
+    pdf_file.seek(0)
+    zip_buffer = io.BytesIO()
+    
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
+            img_count = 0
+            for i in range(len(doc)):
+                image_list = doc.get_page_images(i)
+                for img_index, img in enumerate(image_list):
+                    xref = img[0]
+                    base_image = doc.extract_image(xref)
+                    image_bytes = base_image["image"]
+                    image_ext = base_image["ext"]
+                    
+                    img_count += 1
+                    zf.writestr(f"extracted_image_{img_count}.{image_ext}", image_bytes)
+    
+    return zip_buffer.getvalue(), img_count
+
 def main():
     configure_ocr_paths()
     if 'tool' not in st.session_state:
@@ -415,8 +445,8 @@ def main():
             
     with col_menu:
         # Create a horizontal menu using columns
-        m_cols = st.columns(8)
-        menu_options = ["Home", "Merge PDF", "Split PDF", "Compress PDF", "Convert PDF", "Rotate PDF", "Protect PDF", "OCR PDF"]
+        m_cols = st.columns(10)
+        menu_options = ["Home", "Merge PDF", "Split PDF", "Compress PDF", "Convert PDF", "Rotate PDF", "Protect PDF", "OCR PDF", "Organize", "Extract Img"]
         for idx, option in enumerate(menu_options):
             if m_cols[idx].button(option, key=f"menu_{option}", use_container_width=True):
                 st.session_state.tool = option
@@ -440,6 +470,8 @@ def main():
             {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need."},
             {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."},
             {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Best for scanned PDFs. For regular ones, use Convert."},
+            {"id": "Organize", "icon": "🗂️", "title": "Organize PDF", "desc": "Rearrange, delete or add pages to your document."},
+            {"id": "Extract Img", "icon": "🖼️", "title": "Extract Images", "desc": "Extract all embedded images from your PDF file."},
         ]
         
         # Display cards in a 3-column grid
@@ -631,6 +663,64 @@ def main():
                         2. Download Poppler for Windows from [here](https://github.com/oschwartz10612/poppler-windows/releases).
                         3. Add both `bin` folders to your system Environment Variables (PATH).
                         """)
+
+    elif st.session_state.tool == "Organize":
+        st.title("🗂️ Organize PDF")
+        st.write("Rearrange or delete pages from your PDF document.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
+        uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="org_upload")
+        
+        if uploaded_file:
+            with fitz.open(stream=uploaded_file.read(), filetype="pdf") as doc:
+                total_pages = len(doc)
+                st.info(f"This PDF has {total_pages} pages.")
+                
+                st.markdown("### Select and Order Pages")
+                st.write("Enter the page numbers you want to keep, in the order you want them (e.g., '1, 3, 2').")
+                
+                page_input = st.text_input("Page Sequence", value=", ".join(str(i+1) for i in range(total_pages)))
+                
+                if st.button("Organize and Download"):
+                    try:
+                        # Convert 1-based string input to 0-based integer list
+                        order = [int(p.strip()) - 1 for p in page_input.split(",") if p.strip().isdigit()]
+                        # Validate indices
+                        valid_order = [p for p in order if 0 <= p < total_pages]
+                        
+                        if not valid_order:
+                            st.error("Please enter valid page numbers.")
+                        else:
+                            with st.spinner("Organizing..."):
+                                result_data = organize_pdf(uploaded_file, valid_order)
+                                st.success("Document organized!")
+                                st.download_button("Download Organized PDF", result_data, f"organized_{uploaded_file.name}", "application/pdf")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
+
+    elif st.session_state.tool == "Extract Img":
+        st.title("🖼️ Extract Images")
+        st.write("Extract all embedded images from your PDF document.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
+        uploaded_file = st.file_uploader("Choose a PDF file", type="pdf", key="extract_img_upload")
+        
+        if uploaded_file:
+            if st.button("Extract All Images"):
+                with st.spinner("Scanning for images..."):
+                    try:
+                        zip_data, count = extract_images_from_pdf(uploaded_file)
+                        if count > 0:
+                            st.success(f"Found and extracted {count} images!")
+                            st.download_button("Download All Images (ZIP)", zip_data, f"images_from_{uploaded_file.name.rsplit('.', 1)[0]}.zip", "application/zip")
+                        else:
+                            st.warning("No embedded images found in this PDF.")
+                    except Exception as e:
+                        st.error(f"Extraction failed: {e}")
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")
