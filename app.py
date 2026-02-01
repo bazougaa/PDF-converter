@@ -65,8 +65,8 @@ st.markdown("""
     }
     
     .stButton>button[key^="btn_home_"]:hover {
-        border-color: #e5322d !important;
-        background-color: rgba(229, 50, 45, 0.05) !important;
+        border-color: #00aaff !important;
+        background-color: rgba(0, 170, 255, 0.05) !important;
     }
 
     /* Card Content Overlay */
@@ -164,7 +164,7 @@ st.markdown("""
     .nav-logo {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #e5322d;
+        color: #00aaff;
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -206,9 +206,9 @@ st.markdown("""
     }
     
     div[data-testid="column"] .stButton>button[key^="menu_"]:hover {
-        color: #e5322d !important;
-        background-color: #fff5f5 !important;
-        border-bottom: 3px solid #e5322d !important;
+        color: #00aaff !important;
+        background-color: #f0f9ff !important;
+        border-bottom: 3px solid #00aaff !important;
     }
 
     /* Highlight active tool in menu */
@@ -222,7 +222,7 @@ st.markdown("""
     /* Top Nav Button Styling - Legacy Overrides */
     .stButton>button[key="logo_home"] {
         background-color: transparent !important;
-        color: #e5322d !important;
+        color: #00aaff !important;
         border: none !important;
         font-weight: 800 !important;
         font-size: 1.6rem !important;
@@ -238,7 +238,7 @@ st.markdown("""
     
     /* iLovePDF Red Accents - Action Buttons */
     .stButton>button {
-        background-color: #e5322d !important;
+        background-color: #00aaff !important;
         color: #ffffff !important;
         border-radius: 8px !important;
         border: none !important;
@@ -265,8 +265,8 @@ st.markdown("""
     }
     
     .stButton>button:hover {
-        background-color: #c12723 !important;
-        box-shadow: 0 4px 12px rgba(229, 50, 45, 0.4) !important;
+        background-color: #0088cc !important;
+        box-shadow: 0 4px 12px rgba(0, 170, 255, 0.4) !important;
         transform: translateY(-1px) !important;
     }
     
@@ -288,7 +288,7 @@ st.markdown("""
     }
     
     .tool-card:hover {
-        border-color: #e5322d;
+        border-color: #00aaff;
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         transform: translateY(-5px);
     }
@@ -312,8 +312,8 @@ st.markdown("""
     
     /* File Uploader Styling */
     section[data-testid="stFileUploadDropzone"] {
-        border: 2px dashed #e5322d !important;
-        background-color: #fff5f5 !important;
+        border: 2px dashed #00aaff !important;
+        background-color: #f0f9ff !important;
         border-radius: 12px !important;
     }
     
@@ -773,7 +773,7 @@ def main():
                     st.error("Please enter a password.")
 
     elif st.session_state.tool == "OCR PDF":
-        st.markdown("<h1 style='color: #e5322d !important;'>🔍 OCR PDF (Optical Character Recognition)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='color: #00aaff !important;'>🔍 OCR PDF (Optical Character Recognition)</h1>", unsafe_allow_html=True)
         st.write("Extract text from scanned PDFs or images that don't have selectable text.")
         
         if st.button("← Back to Home"):
@@ -939,7 +939,7 @@ def main():
 
     st.markdown("""
         <div style='text-align: center; padding: 3rem 0; color: #666; border-top: 1px solid #eee; margin-top: 5rem;'>
-            <div style='font-size: 1.2rem; font-weight: 700; color: #e5322d; margin-bottom: 1rem;'>📄 PDF POWER</div>
+            <div style='font-size: 1.2rem; font-weight: 700; color: #00aaff; margin-bottom: 1rem;'>📄 PDF POWER</div>
             <p>© 2026 PDF Power-Tool. All rights reserved. Made for professional PDF management.</p>
             <div style='display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;'>
                 <a href='#' style='color: #666; text-decoration: none;'>Terms</a>
