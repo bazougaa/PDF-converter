@@ -50,8 +50,8 @@ st.markdown("""
     }
     
     .menu-item:hover {
-        color: #e5322d;
-        background-color: #fff5f5;
+        color: #00aaff;
+        background-color: #f0f9ff;
     }
 
     /* Tool Card Fixes */
@@ -259,7 +259,7 @@ st.markdown("""
     }
     
     .footer-col ul li a {
-        color: #666;
+        color: #444444;
         text-decoration: none;
         transition: color 0.2s ease;
         font-size: 0.95rem;
@@ -275,7 +275,7 @@ st.markdown("""
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: #888;
+        color: #666666;
         font-size: 0.9rem;
     }
 
@@ -290,7 +290,7 @@ st.markdown("""
     
     .hero-subtitle {
         font-size: 1.5rem !important;
-        color: #666 !important;
+        color: #444444 !important;
         text-align: center !important;
         margin-bottom: 3rem !important;
     }
@@ -414,7 +414,7 @@ st.markdown("""
     
     .tool-desc {
         font-size: 0.9rem;
-        color: #666;
+        color: #444444;
     }
     
     /* File Uploader Styling */
