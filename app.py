@@ -420,8 +420,31 @@ st.markdown("""
     /* File Uploader Styling */
     section[data-testid="stFileUploadDropzone"] {
         border: 2px dashed #00aaff !important;
-        background-color: #f0f9ff !important;
+        background-color: #ffffff !important;
         border-radius: 12px !important;
+        transition: all 0.3s ease !important;
+        padding: 2rem !important;
+    }
+    
+    section[data-testid="stFileUploadDropzone"]:hover {
+        border-color: #0088cc !important;
+        background-color: #f0f9ff !important;
+        box-shadow: 0 4px 12px rgba(0, 170, 255, 0.1) !important;
+    }
+
+    /* Target the text inside the uploader */
+    section[data-testid="stFileUploadDropzone"] div[data-testid="stMarkdownContainer"] p {
+        color: #444444 !important;
+        font-weight: 500 !important;
+    }
+
+    /* Target the 'Browse files' button inside the uploader */
+    section[data-testid="stFileUploadDropzone"] button {
+        background-color: #00aaff !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 0.4rem 1rem !important;
     }
     
     /* Selectbox Styling */
