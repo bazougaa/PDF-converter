@@ -161,15 +161,92 @@ st.markdown("""
         border-bottom: 1px solid #eee;
     }
     
-    .nav-logo {
-        font-size: 1.5rem;
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+
+    .nav-logo-text {
+        font-size: 1.6rem;
         font-weight: 800;
         color: #00aaff;
         text-decoration: none;
+        white-space: nowrap;
+    }
+
+    /* Target ONLY the top navigation buttons */
+    div[data-testid="column"] .stButton>button[key^="menu_"] {
+        background-color: transparent !important;
+        color: #444444 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 1rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        height: 70px !important;
+        line-height: 70px !important;
+        transition: all 0.2s ease !important;
+        border-bottom: 3px solid transparent !important;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    
+    div[data-testid="column"] .stButton>button[key^="menu_"]:hover {
+        color: #00aaff !important;
+        background-color: transparent !important;
+        border-bottom: 3px solid #00aaff !important;
+    }
+
+    /* Professional Footer Styling */
+    .footer-container {
+        background-color: #ffffff;
+        padding: 4rem 10% 2rem 10%;
+        border-top: 1px solid #eee;
+        margin-top: 6rem;
+    }
+    
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+    
+    .footer-col h4 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .footer-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-col ul li {
+        margin-bottom: 0.8rem;
+    }
+    
+    .footer-col ul li a {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        font-size: 0.95rem;
+    }
+    
+    .footer-col ul li a:hover {
+        color: #00aaff;
+    }
+    
+    .footer-bottom {
+        border-top: 1px solid #eee;
+        padding-top: 2rem;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        margin-right: 40px;
+        color: #888;
+        font-size: 0.9rem;
     }
 
     /* Hero Section */
@@ -566,14 +643,15 @@ def main():
     st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
     header = st.container()
     with header:
-        col_logo, col_nav = st.columns([1.5, 8.5])
+        col_logo, col_nav = st.columns([2, 8])
         with col_logo:
+            st.markdown("<div style='height: 70px; display: flex; align-items: center;'>", unsafe_allow_html=True)
             if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
                 st.session_state.tool = "Home"
                 st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
         
         with col_nav:
-            # We use shorter names for the navbar to save space
             nav_items = [
                 ("Merge", "Merge PDF"),
                 ("Split", "Split PDF"),
@@ -588,7 +666,6 @@ def main():
                 ("Meta", "Metadata")
             ]
             
-            # Use columns for horizontal layout
             nav_cols = st.columns(len(nav_items))
             for i, (label, tool_id) in enumerate(nav_items):
                 if nav_cols[i].button(label, key=f"menu_{tool_id}", use_container_width=True):
@@ -937,14 +1014,52 @@ def main():
                     st.success("Metadata updated!")
                     st.download_button("Download Updated PDF", result, f"updated_{uploaded_file.name}", "application/pdf")
 
+    # Professional Multi-column Footer
     st.markdown("""
-        <div style='text-align: center; padding: 3rem 0; color: #666; border-top: 1px solid #eee; margin-top: 5rem;'>
-            <div style='font-size: 1.2rem; font-weight: 700; color: #00aaff; margin-bottom: 1rem;'>📄 PDF POWER</div>
-            <p>© 2026 PDF Power-Tool. All rights reserved. Made for professional PDF management.</p>
-            <div style='display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;'>
-                <a href='#' style='color: #666; text-decoration: none;'>Terms</a>
-                <a href='#' style='color: #666; text-decoration: none;'>Privacy</a>
-                <a href='#' style='color: #666; text-decoration: none;'>Support</a>
+        <div class='footer-container'>
+            <div class='footer-grid'>
+                <div class='footer-col'>
+                    <div class='nav-logo-text' style='margin-bottom: 1.5rem;'>📄 PDF POWER</div>
+                    <p style='color: #666; line-height: 1.6; font-size: 0.95rem;'>
+                        The world's most powerful and easy-to-use online PDF tool. 
+                        Processing millions of documents with 100% privacy and security.
+                    </p>
+                </div>
+                <div class='footer-col'>
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href='#'>Merge PDF</a></li>
+                        <li><a href='#'>Split PDF</a></li>
+                        <li><a href='#'>Compress PDF</a></li>
+                        <li><a href='#'>OCR PDF</a></li>
+                    </ul>
+                </div>
+                <div class='footer-col'>
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href='#'>About Us</a></li>
+                        <li><a href='#'>Our Story</a></li>
+                        <li><a href='#'>Careers</a></li>
+                        <li><a href='#'>Contact</a></li>
+                    </ul>
+                </div>
+                <div class='footer-col'>
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href='#'>Help Center</a></li>
+                        <li><a href='#'>API Docs</a></li>
+                        <li><a href='#'>Privacy Policy</a></li>
+                        <li><a href='#'>Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class='footer-bottom'>
+                <div>© 2026 PDF Power-Tool. All rights reserved.</div>
+                <div style='display: flex; gap: 1.5rem;'>
+                    <a href='#' style='color: #888; text-decoration: none;'>Twitter</a>
+                    <a href='#' style='color: #888; text-decoration: none;'>LinkedIn</a>
+                    <a href='#' style='color: #888; text-decoration: none;'>GitHub</a>
+                </div>
             </div>
         </div>
     """, unsafe_allow_html=True)
