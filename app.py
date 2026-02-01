@@ -4,6 +4,8 @@ from pdf2docx import Converter
 import io
 import os
 import zipfile
+import pytesseract
+from pdf2image import convert_from_bytes
 from PIL import Image
 from docx import Document
 
@@ -50,11 +52,11 @@ st.markdown("""
     /* Tool Card Fixes */
     .stButton>button[key^="btn_home_"] {
         height: 250px !important;
-        background-color: white !important;
-        color: transparent !important; /* Hide the actual button text if any */
+        background-color: transparent !important; /* Transparent to show content below */
+        color: transparent !important;
         border: 1px solid #e0e0e0 !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02) !important;
+        box-shadow: none !important;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         position: relative !important;
         z-index: 2 !important;
@@ -62,9 +64,7 @@ st.markdown("""
     
     .stButton>button[key^="btn_home_"]:hover {
         border-color: #e5322d !important;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
-        transform: translateY(-5px) !important;
-        background-color: #fffafa !important;
+        background-color: rgba(229, 50, 45, 0.02) !important;
     }
 
     /* Card Content Overlay */
@@ -80,8 +80,18 @@ st.markdown("""
         align-items: center;
         padding: 1.5rem;
         text-align: center;
-        pointer-events: none; /* Let clicks pass through to the button below */
+        background-color: white; /* Moved background here */
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        pointer-events: none;
         z-index: 1;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton:hover + .card-content, 
+    .stButton>button[key^="btn_home_"]:hover ~ div .card-content {
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+        transform: translateY(-5px) !important;
     }
     
     .card-icon {
@@ -314,6 +324,19 @@ def compress_pdf(pdf_file):
             clean=True
         )
 
+def ocr_pdf(pdf_file):
+    """Perform OCR on a PDF file and return the extracted text."""
+    # Convert PDF to images
+    pdf_file.seek(0)
+    images = convert_from_bytes(pdf_file.read())
+    
+    full_text = ""
+    for i, image in enumerate(images):
+        text = pytesseract.image_to_string(image)
+        full_text += f"--- Page {i+1} ---\n{text}\n\n"
+    
+    return full_text
+
 def main():
     if 'tool' not in st.session_state:
         st.session_state.tool = "Home"
@@ -327,8 +350,8 @@ def main():
             
     with col_menu:
         # Create a horizontal menu using columns
-        m_cols = st.columns(7)
-        menu_options = ["Home", "Merge PDF", "Split PDF", "Compress PDF", "Convert PDF", "Rotate PDF", "Protect PDF"]
+        m_cols = st.columns(8)
+        menu_options = ["Home", "Merge PDF", "Split PDF", "Compress PDF", "Convert PDF", "Rotate PDF", "Protect PDF", "OCR PDF"]
         for idx, option in enumerate(menu_options):
             if m_cols[idx].button(option, key=f"menu_{option}", use_container_width=True):
                 st.session_state.tool = option
@@ -350,7 +373,8 @@ def main():
             {"id": "Compress PDF", "icon": "📉", "title": "Compress PDF", "desc": "Reduce file size while optimizing quality."},
             {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert to Word, Text or Images."},
             {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need."},
-            {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."}
+            {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."},
+            {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Extract text from scanned PDFs using OCR."},
         ]
         
         # Display cards in a 3-column grid
@@ -360,7 +384,7 @@ def main():
                 if row + i < len(tools):
                     tool = tools[row + i]
                     with cols[i]:
-                        # Relative container to hold both the styled text and the click-trigger button
+                        # Visual layer (bottom)
                         st.markdown(f"""
                             <div style="position: relative; height: 250px;">
                                 <div class="card-content">
@@ -371,8 +395,7 @@ def main():
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        # The button is absolutely positioned over the container via CSS key targeting
-                        # We use a negative margin-top to pull it up over the markdown area
+                        # Interaction layer (top)
                         st.markdown('<div style="margin-top: -250px;">', unsafe_allow_html=True)
                         if st.button("", key=f"btn_home_{tool['id']}", use_container_width=True):
                             st.session_state.tool = tool['id']
@@ -506,6 +529,33 @@ def main():
                         st.download_button("Download Protected PDF", protected_data, f"protected_{uploaded_file.name}", "application/pdf")
                 else:
                     st.error("Please enter a password.")
+
+    elif st.session_state.tool == "OCR PDF":
+        st.title("🔍 OCR PDF")
+        st.write("Extract text from scanned PDFs using Optical Character Recognition.")
+        if st.button("← Back to Home"):
+            st.session_state.tool = "Home"
+            st.rerun()
+            
+        st.warning("⚠️ Note: OCR requires Tesseract-OCR to be installed on your system.")
+        uploaded_file = st.file_uploader("Choose a scanned PDF file", type="pdf", key="ocr_upload")
+        
+        if uploaded_file:
+            if st.button("Extract Text with OCR"):
+                with st.spinner("Performing OCR... This may take a while for large files."):
+                    try:
+                        extracted_text = ocr_pdf(uploaded_file)
+                        st.success("OCR completed successfully!")
+                        st.text_area("Extracted Text", extracted_text, height=400)
+                        st.download_button(
+                            label="Download Extracted Text",
+                            data=extracted_text,
+                            file_name=f"ocr_{uploaded_file.name.rsplit('.', 1)[0]}.txt",
+                            mime="text/plain"
+                        )
+                    except Exception as e:
+                        st.error(f"OCR failed: {e}")
+                        st.info("Ensure Tesseract-OCR is installed and added to your PATH.")
 
     st.markdown("<br><hr>", unsafe_allow_html=True)
     st.caption("PDF Power-Tool | Built for performance and ease of use. © 2026")

@@ -3,3 +3,5 @@ pdf2docx
 pymupdf
 python-docx
 pillow
+pytesseract
+pdf2image
