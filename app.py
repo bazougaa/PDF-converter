@@ -158,11 +158,11 @@ st.markdown("""
         top: 0;
         left: 0;
         right: 0;
-        height: 70px;
+        height: 80px; /* Slightly taller for more professional feel */
         background-color: #ffffff;
         display: flex;
         align-items: center;
-        padding: 0 5%;
+        padding: 0 10%; /* Match footer horizontal padding */
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         z-index: 1000;
         border-bottom: 1px solid #eee;
@@ -186,11 +186,11 @@ st.markdown("""
         color: #444444 !important;
         border: none !important;
         border-radius: 0 !important;
-        padding: 0 1rem !important;
+        padding: 0 0.8rem !important;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
-        height: 70px !important;
-        line-height: 70px !important;
+        height: 80px !important;
+        line-height: 80px !important;
         transition: all 0.2s ease !important;
         border-bottom: 3px solid transparent !important;
         text-transform: none;
@@ -668,9 +668,9 @@ def main():
     st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
     header = st.container()
     with header:
-        col_logo, col_nav = st.columns([2, 8])
+        col_logo, col_nav = st.columns([1.2, 5]) # Tighter ratio for logo and menu
         with col_logo:
-            st.markdown("<div style='height: 70px; display: flex; align-items: center;'>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 80px; display: flex; align-items: center;'>", unsafe_allow_html=True)
             if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
                 st.session_state.tool = "Home"
                 st.rerun()
@@ -697,7 +697,8 @@ def main():
                     st.session_state.tool = tool_id
                     st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("<div class='main-content-offset'></div>", unsafe_allow_html=True)
+
+    st.markdown("<div class='main-content-offset' style='margin-top: 120px;'></div>", unsafe_allow_html=True)
 
     # Main Content Area
     if st.session_state.tool == "Home":
