@@ -1,12 +1,14 @@
-# PDF Multi-Converter
+# PDF Power-Tool
 
-A Streamlit-based tool to convert PDF files to various formats including Text, Word (.docx), and Images (.png).
+A powerful, open-source alternative to iLovePDF built with Streamlit and PyMuPDF.
 
 ## Features
-- **Multi-File Upload**: Process multiple PDFs at once.
-- **Text Extraction**: Extract plain text using PyMuPDF.
-- **Word Conversion**: Convert PDFs to editable .docx files using pdf2docx.
-- **Image Conversion**: Export PDF pages as high-quality PNG images.
+- **🔄 Convert PDF**: Convert to Text (.txt), Word (.docx), or Images (.png - bundled in ZIP).
+- **🔗 Merge PDF**: Combine multiple PDF files into one.
+- **✂️ Split PDF**: Split documents by specific page ranges.
+- **📉 Compress PDF**: Reduce PDF file size.
+- **🔄 Rotate PDF**: Rotate all pages in a document.
+- **🔒 Protect PDF**: Add AES-256 password protection to your files.
 
 ## Installation
 
