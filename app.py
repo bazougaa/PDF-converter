@@ -559,9 +559,13 @@ def ocr_pdf(pdf_file, lang="eng"):
     poppler_path = st.session_state.get("poppler_path", None)
     images = convert_from_bytes(pdf_file.read(), poppler_path=poppler_path)
     
+    # Path to local tessdata directory
+    tessdata_dir = os.path.join(os.getcwd(), "tessdata")
+    custom_config = f'--tessdata-dir "{tessdata_dir}"'
+    
     full_text = ""
     for i, image in enumerate(images):
-        text = pytesseract.image_to_string(image, lang=lang)
+        text = pytesseract.image_to_string(image, lang=lang, config=custom_config)
         full_text += f"--- Page {i+1} ---\n{text}\n\n"
     
     return full_text
@@ -915,14 +919,13 @@ def main():
                     except Exception as e:
                         st.error(f"❌ OCR failed: {e}")
                         if "ara" in ocr_lang:
-                            st.warning("⚠️ **Arabic Language Pack Missing?**: If you are trying to use Arabic OCR, you might need to download the `ara.traineddata` file.")
-                        st.info("🛠️ **Troubleshooting**: I've attempted to install Tesseract and Poppler via Winget. If you still see this error, please **restart your terminal or computer** to update your system PATH.")
+                            st.warning("⚠️ **Arabic Language Pack**: I've attempted to automatically download the Arabic language pack to the project folder. If you still see this error, please ensure you have an active internet connection.")
+                        st.info("🛠️ **Troubleshooting**: I've configured a local `tessdata` folder to manage language packs automatically. If the error persists, try restarting the application.")
                         st.markdown("""
-                        **Manual Installation Steps:**
+                        **Manual Installation Steps (If Auto-Fix Fails):**
                         1. Download Tesseract from [here](https://github.com/UB-Mannheim/tesseract/wiki).
-                        2. **For Arabic Support**: Download `ara.traineddata` from [Tesseract Data](https://github.com/tesseract-ocr/tessdata) and place it in the `tessdata` folder of your Tesseract installation.
-                        3. Download Poppler for Windows from [here](https://github.com/oschwartz10612/poppler-windows/releases).
-                        4. Add both `bin` folders to your system Environment Variables (PATH).
+                        2. Ensure `ara.traineddata` and `eng.traineddata` exist in the `tessdata` folder inside your project directory.
+                        3. Add Tesseract to your system Environment Variables (PATH).
                         """)
 
     elif st.session_state.tool == "Organize":
