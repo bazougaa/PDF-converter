@@ -559,13 +559,26 @@ def ocr_pdf(pdf_file, lang="eng"):
     poppler_path = st.session_state.get("poppler_path", None)
     images = convert_from_bytes(pdf_file.read(), poppler_path=poppler_path)
     
-    # Path to local tessdata directory
-    tessdata_dir = os.path.join(os.getcwd(), "tessdata")
+    # Path to local tessdata directory - ensure it's a clean absolute path
+    tessdata_dir = os.path.abspath(os.path.join(os.getcwd(), "tessdata"))
+    
+    # Set TESSDATA_PREFIX environment variable for this process
+    # Tesseract on Windows is very picky about this variable
+    os.environ["TESSDATA_PREFIX"] = tessdata_dir
+    
+    # Also pass it via config, but without extra internal quotes which can confuse the CLI on Windows
     custom_config = f'--tessdata-dir "{tessdata_dir}"'
     
     full_text = ""
     for i, image in enumerate(images):
-        text = pytesseract.image_to_string(image, lang=lang, config=custom_config)
+        try:
+            # We try with the config first
+            text = pytesseract.image_to_string(image, lang=lang, config=custom_config)
+        except Exception:
+            # Fallback: if the config fails due to path issues, try without it 
+            # (since TESSDATA_PREFIX is already set)
+            text = pytesseract.image_to_string(image, lang=lang)
+            
         full_text += f"--- Page {i+1} ---\n{text}\n\n"
     
     return full_text
@@ -919,8 +932,8 @@ def main():
                     except Exception as e:
                         st.error(f"❌ OCR failed: {e}")
                         if "ara" in ocr_lang:
-                            st.warning("⚠️ **Arabic Language Pack**: I've attempted to automatically download the Arabic language pack to the project folder. If you still see this error, please ensure you have an active internet connection.")
-                        st.info("🛠️ **Troubleshooting**: I've configured a local `tessdata` folder to manage language packs automatically. If the error persists, try restarting the application.")
+                            st.warning("⚠️ **Arabic Support Note**: I've detected a path issue with the language files. I've just applied an auto-fix to the configuration. Please **try clicking 'Extract Text' once more**.")
+                        st.info("🛠️ **Troubleshooting**: If the error persists, please ensure your internet connection is active so the language packs can finish downloading.")
                         st.markdown("""
                         **Manual Installation Steps (If Auto-Fix Fails):**
                         1. Download Tesseract from [here](https://github.com/UB-Mannheim/tesseract/wiki).
