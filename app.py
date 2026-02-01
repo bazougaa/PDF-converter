@@ -52,7 +52,7 @@ st.markdown("""
     /* Tool Card Fixes */
     .stButton>button[key^="btn_home_"] {
         height: 250px !important;
-        background-color: transparent !important; /* Transparent to show content below */
+        background-color: transparent !important;
         color: transparent !important;
         border: 1px solid #e0e0e0 !important;
         border-radius: 12px !important;
@@ -64,7 +64,7 @@ st.markdown("""
     
     .stButton>button[key^="btn_home_"]:hover {
         border-color: #e5322d !important;
-        background-color: rgba(229, 50, 45, 0.02) !important;
+        background-color: rgba(229, 50, 45, 0.05) !important;
     }
 
     /* Card Content Overlay */
@@ -80,36 +80,45 @@ st.markdown("""
         align-items: center;
         padding: 1.5rem;
         text-align: center;
-        background-color: white; /* Moved background here */
+        background-color: #ffffff; 
         border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         pointer-events: none;
         z-index: 1;
         transition: all 0.3s ease;
     }
-    
-    .stButton:hover + .card-content, 
-    .stButton>button[key^="btn_home_"]:hover ~ div .card-content {
-        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
-        transform: translateY(-5px) !important;
-    }
-    
+
+    /* If icons/text are white, ensure they are on a darker background or have shadow */
     .card-icon {
         font-size: 3.5rem;
         margin-bottom: 1rem;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); /* Ensure visibility of white icons */
     }
     
     .card-title {
         font-weight: 700;
         font-size: 1.25rem;
-        color: #333;
+        color: #333333; /* Dark gray for contrast */
         margin-bottom: 0.75rem;
     }
     
     .card-desc {
         font-size: 0.95rem;
-        color: #666;
+        color: #555555; /* Slightly darker gray */
         line-height: 1.4;
+    }
+
+    /* Hover effect for card content when the button is hovered */
+    .stButton>button[key^="btn_home_"]:hover + div .card-content {
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+        transform: translateY(-5px) !important;
+    }
+
+    /* Ensure text areas have high contrast */
+    .stTextArea textarea {
+        background-color: #ffffff !important;
+        color: #1a1a1a !important;
+        border: 1px solid #ddd !important;
     }
 
     /* Top Nav Button Styling */
@@ -143,13 +152,14 @@ st.markdown("""
     /* iLovePDF Red Accents */
     .stButton>button {
         background-color: #e5322d !important;
-        color: white !important;
+        color: #ffffff !important; /* Ensure white text on red background */
         border-radius: 8px !important;
         border: none !important;
         padding: 0.5rem 1rem !important;
         font-weight: 600 !important;
         transition: all 0.3s ease !important;
         width: 100%;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Better contrast for white text */
     }
     
     .stButton>button:hover {
