@@ -132,10 +132,15 @@ st.markdown("""
         background-color: #ffffff !important;
         border: 1px solid #e0e0e0 !important;
         color: #333333 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
     }
     
-    div[data-testid="stNotification"] p {
+    div[data-testid="stNotification"] p, 
+    div[data-testid="stNotification"] span, 
+    div[data-testid="stNotification"] b, 
+    div[data-testid="stNotification"] strong {
         color: #333333 !important;
+        opacity: 1 !important;
     }
 
     /* Top Nav Button Styling */
@@ -416,7 +421,7 @@ def main():
             {"id": "Convert PDF", "icon": "🔄", "title": "Convert PDF", "desc": "Convert to Word, Text or Images."},
             {"id": "Rotate PDF", "icon": "🔃", "title": "Rotate PDF", "desc": "Rotate your PDFs the way you need."},
             {"id": "Protect PDF", "icon": "🔒", "title": "Protect PDF", "desc": "Encrypt your PDF with a password."},
-            {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Extract text from scanned PDFs using OCR."},
+            {"id": "OCR PDF", "icon": "🔍", "title": "OCR PDF", "desc": "Best for scanned PDFs. For regular ones, use Convert."},
         ]
         
         # Display cards in a 3-column grid

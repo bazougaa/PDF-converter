@@ -7,9 +7,9 @@ A powerful, open-source alternative to iLovePDF built with Streamlit and PyMuPDF
 - **🔗 Merge PDF**: Combine multiple PDF files into one.
 - **✂️ Split PDF**: Split documents by specific page ranges.
 - **📉 Compress PDF**: Reduce PDF file size.
-- **� Rotate PDF**: Rotate all pages in a document.
+- **🔃 Rotate PDF**: Rotate all pages in a document.
 - **🔒 Protect PDF**: Add AES-256 password protection to your files.
-- **🔍 OCR PDF**: Extract text from scanned documents using Optical Character Recognition.
+- **🔍 OCR PDF**: Extract text from scanned documents using Optical Character Recognition. (Note: Best for scanned documents; for regular PDFs, use **Convert PDF**).
 
 ## Installation
 
