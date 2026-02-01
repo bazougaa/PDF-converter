@@ -145,6 +145,13 @@ st.markdown("""
         opacity: 1 !important;
     }
 
+    /* Ensure spinner text has high contrast */
+    div[data-testid="stSpinner"] p, 
+    div[data-testid="stStatusWidget"] p {
+        color: #333333 !important;
+        font-weight: 500 !important;
+    }
+
     /* Real Website Navbar Styling */
     .nav-container {
         position: fixed;
