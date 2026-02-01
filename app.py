@@ -49,18 +49,79 @@ st.markdown("""
 
     /* Tool Card Fixes */
     .stButton>button[key^="btn_home_"] {
-        height: 200px !important;
+        height: 250px !important;
         background-color: white !important;
-        color: #333 !important;
-        border: 1px solid #eee !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
-        display: block !important;
+        color: transparent !important; /* Hide the actual button text if any */
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02) !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        position: relative !important;
+        z-index: 2 !important;
     }
     
     .stButton>button[key^="btn_home_"]:hover {
         border-color: #e5322d !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
         transform: translateY(-5px) !important;
+        background-color: #fffafa !important;
+    }
+
+    /* Card Content Overlay */
+    .card-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        text-align: center;
+        pointer-events: none; /* Let clicks pass through to the button below */
+        z-index: 1;
+    }
+    
+    .card-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+    
+    .card-desc {
+        font-size: 0.95rem;
+        color: #666;
+        line-height: 1.4;
+    }
+
+    /* Top Nav Button Styling */
+    .stButton>button[key^="menu_"], .stButton>button[key="logo_home"] {
+        background-color: transparent !important;
+        color: #333 !important;
+        border: none !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        border-radius: 0 !important;
+        border-bottom: 2px solid transparent !important;
+    }
+    
+    .stButton>button[key^="menu_"]:hover, .stButton>button[key="logo_home"]:hover {
+        color: #e5322d !important;
+        border-bottom: 2px solid #e5322d !important;
+        background-color: #fff5f5 !important;
+    }
+    
+    .stButton>button[key="logo_home"] {
+        font-size: 1.4rem !important;
+        color: #e5322d !important;
     }
     
     /* Header Styling */
@@ -258,9 +319,9 @@ def main():
         st.session_state.tool = "Home"
 
     # Top Navigation Bar
-    col_logo, col_menu = st.columns([1, 4])
+    col_logo, col_menu = st.columns([1.5, 5])
     with col_logo:
-        if st.button("📄 PDF Power", key="logo_home"):
+        if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
             st.session_state.tool = "Home"
             st.rerun()
             
@@ -299,17 +360,24 @@ def main():
                 if row + i < len(tools):
                     tool = tools[row + i]
                     with cols[i]:
-                        # Wrap the button content in HTML for styling, but the button itself is the trigger
+                        # Relative container to hold both the styled text and the click-trigger button
                         st.markdown(f"""
-                            <div style="text-align: center; pointer-events: none; margin-bottom: -150px; position: relative; z-index: 1;">
-                                <div style="font-size: 3rem;">{tool['icon']}</div>
-                                <div style="font-weight: 700; font-size: 1.2rem; margin: 10px 0;">{tool['title']}</div>
-                                <div style="font-size: 0.9rem; color: #666;">{tool['desc']}</div>
+                            <div style="position: relative; height: 250px;">
+                                <div class="card-content">
+                                    <div class="card-icon">{tool['icon']}</div>
+                                    <div class="card-title">{tool['title']}</div>
+                                    <div class="card-desc">{tool['desc']}</div>
+                                </div>
                             </div>
                         """, unsafe_allow_html=True)
+                        
+                        # The button is absolutely positioned over the container via CSS key targeting
+                        # We use a negative margin-top to pull it up over the markdown area
+                        st.markdown('<div style="margin-top: -250px;">', unsafe_allow_html=True)
                         if st.button("", key=f"btn_home_{tool['id']}", use_container_width=True):
                             st.session_state.tool = tool['id']
                             st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
 
     elif st.session_state.tool == "Convert PDF":
         st.title("🔄 Convert PDF")
