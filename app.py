@@ -155,17 +155,17 @@ st.markdown("""
         font-weight: 500 !important;
     }
 
-    /* Real Website Navbar Styling */
+    /* Professional Header Styling - Matching Footer */
     .nav-container {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        height: 80px; /* Slightly taller for more professional feel */
+        height: 100px;
         background-color: #ffffff;
         display: flex;
         align-items: center;
-        padding: 0 10%; /* Match footer horizontal padding */
+        padding: 0 10%;
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         z-index: 1000;
         border-bottom: 1px solid #eee;
@@ -181,6 +181,10 @@ st.markdown("""
         color: #00aaff;
         text-decoration: none;
         white-space: nowrap;
+        margin-right: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     /* Target ONLY the top navigation buttons */
@@ -189,11 +193,11 @@ st.markdown("""
         color: #444444 !important;
         border: none !important;
         border-radius: 0 !important;
-        padding: 0 0.8rem !important;
+        padding: 0 1rem !important;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
-        height: 80px !important;
-        line-height: 80px !important;
+        height: 100px !important;
+        line-height: 100px !important;
         transition: all 0.2s ease !important;
         border-bottom: 3px solid transparent !important;
         text-transform: none;
@@ -204,6 +208,11 @@ st.markdown("""
         color: #00aaff !important;
         background-color: transparent !important;
         border-bottom: 3px solid #00aaff !important;
+    }
+
+    /* Offset main content for fixed header */
+    .main-content-offset {
+        margin-top: 140px;
     }
 
     /* Professional Footer Styling */
@@ -708,19 +717,23 @@ def main():
     if 'tool' not in st.session_state:
         st.session_state.tool = "Home"
 
-    # Navigation Bar
+    # Header - Same design as Footer
     st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
-    header = st.container()
-    with header:
-        col_logo, col_nav = st.columns([1.2, 5]) # Tighter ratio for logo and menu
+    header_container = st.container()
+    with header_container:
+        # Use columns to align logo and menu
+        col_logo, col_menu = st.columns([1.5, 8.5])
+        
         with col_logo:
-            st.markdown("<div style='height: 80px; display: flex; align-items: center;'>", unsafe_allow_html=True)
+            # Replicate the footer logo style
+            st.markdown("<div style='height: 100px; display: flex; align-items: center;'>", unsafe_allow_html=True)
             if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
                 st.session_state.tool = "Home"
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
-        
-        with col_nav:
+            
+        with col_menu:
+            # Navigation items in a single row next to the logo
             nav_items = [
                 ("Merge", "Merge PDF"),
                 ("Split", "Split PDF"),
@@ -735,6 +748,7 @@ def main():
                 ("Meta", "Metadata")
             ]
             
+            # Sub-columns for nav items to keep them tightly packed
             nav_cols = st.columns(len(nav_items))
             for i, (label, tool_id) in enumerate(nav_items):
                 if nav_cols[i].button(label, key=f"menu_{tool_id}", use_container_width=True):
@@ -742,7 +756,8 @@ def main():
                     st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='main-content-offset' style='margin-top: 120px;'></div>", unsafe_allow_html=True)
+    # Content Offset for fixed header
+    st.markdown("<div class='main-content-offset'></div>", unsafe_allow_html=True)
 
     # Main Content Area
     if st.session_state.tool == "Home":
