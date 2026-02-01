@@ -161,7 +161,7 @@ st.markdown("""
         top: 0;
         left: 0;
         right: 0;
-        height: 100px;
+        height: 80px;
         background-color: #ffffff;
         display: flex;
         align-items: center;
@@ -175,44 +175,55 @@ st.markdown("""
         display: none;
     }
 
-    .nav-logo-text {
+    .nav-content-wrapper {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 2rem;
+    }
+
+    .nav-logo-link {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #00aaff;
-        text-decoration: none;
+        color: #00aaff !important;
+        text-decoration: none !important;
         white-space: nowrap;
-        margin-right: 2rem;
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    /* Target ONLY the top navigation buttons */
-    div[data-testid="column"] .stButton>button[key^="menu_"] {
-        background-color: transparent !important;
-        color: #444444 !important;
-        border: none !important;
-        border-radius: 0 !important;
-        padding: 0 1rem !important;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        height: 100px !important;
-        line-height: 100px !important;
-        transition: all 0.2s ease !important;
-        border-bottom: 3px solid transparent !important;
-        text-transform: none;
-        letter-spacing: 0;
+    .nav-links-wrapper {
+        display: flex;
+        gap: 1.2rem;
+        align-items: center;
+        flex-wrap: nowrap;
     }
-    
-    div[data-testid="column"] .stButton>button[key^="menu_"]:hover {
+
+    .nav-link-item {
+        color: #444444 !important;
+        text-decoration: none !important;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        padding: 0.5rem 0;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+    }
+
+    .nav-link-item:hover {
         color: #00aaff !important;
-        background-color: transparent !important;
-        border-bottom: 3px solid #00aaff !important;
+        border-bottom: 2px solid #00aaff;
+    }
+
+    .nav-link-item.active {
+        color: #00aaff !important;
+        border-bottom: 2px solid #00aaff;
     }
 
     /* Offset main content for fixed header */
     .main-content-offset {
-        margin-top: 140px;
+        margin-top: 120px;
     }
 
     /* Professional Footer Styling */
@@ -714,47 +725,45 @@ def edit_metadata(pdf_file, title, author, subject):
 
 def main():
     configure_ocr_paths()
-    if 'tool' not in st.session_state:
+    
+    # Handle Navigation via Query Parameters
+    query_params = st.query_params
+    if "tool" in query_params:
+        st.session_state.tool = query_params["tool"]
+    elif 'tool' not in st.session_state:
         st.session_state.tool = "Home"
 
-    # Header - Same design as Footer
-    st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
-    header_container = st.container()
-    with header_container:
-        # Use columns to align logo and menu
-        col_logo, col_menu = st.columns([1.5, 8.5])
-        
-        with col_logo:
-            # Replicate the footer logo style
-            st.markdown("<div style='height: 100px; display: flex; align-items: center;'>", unsafe_allow_html=True)
-            if st.button("📄 PDF POWER", key="logo_home", use_container_width=True):
-                st.session_state.tool = "Home"
-                st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-        with col_menu:
-            # Navigation items in a single row next to the logo
-            nav_items = [
-                ("Merge", "Merge PDF"),
-                ("Split", "Split PDF"),
-                ("Compress", "Compress PDF"),
-                ("Convert", "Convert PDF"),
-                ("Rotate", "Rotate PDF"),
-                ("Organize", "Organize"),
-                ("OCR", "OCR PDF"),
-                ("Protect", "Protect PDF"),
-                ("Watermark", "Watermark"),
-                ("Images", "Extract Img"),
-                ("Meta", "Metadata")
-            ]
-            
-            # Sub-columns for nav items to keep them tightly packed
-            nav_cols = st.columns(len(nav_items))
-            for i, (label, tool_id) in enumerate(nav_items):
-                if nav_cols[i].button(label, key=f"menu_{tool_id}", use_container_width=True):
-                    st.session_state.tool = tool_id
-                    st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Navigation Items Definition
+    nav_items = [
+        ("Merge", "Merge PDF"),
+        ("Split", "Split PDF"),
+        ("Compress", "Compress PDF"),
+        ("Convert", "Convert PDF"),
+        ("Rotate", "Rotate PDF"),
+        ("Organize", "Organize"),
+        ("OCR", "OCR PDF"),
+        ("Protect", "Protect PDF"),
+        ("Watermark", "Watermark"),
+        ("Images", "Extract Img"),
+        ("Meta", "Metadata")
+    ]
+
+    # Render Pure HTML Header (No Streamlit Buttons)
+    links_html = ""
+    for label, tool_id in nav_items:
+        active_class = "active" if st.session_state.tool == tool_id else ""
+        links_html += f'<a href="/?tool={tool_id}" target="_self" class="nav-link-item {active_class}">{label}</a>'
+
+    st.markdown(f"""
+        <div class="nav-container">
+            <div class="nav-content-wrapper">
+                <a href="/?tool=Home" target="_self" class="nav-logo-link">📄 PDF POWER</a>
+                <div class="nav-links-wrapper">
+                    {links_html}
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # Content Offset for fixed header
     st.markdown("<div class='main-content-offset'></div>", unsafe_allow_html=True)
